@@ -3,3 +3,4 @@ line-bot-sdk==2.2.1
 azure-ai-language-questionanswering==1.1.0
 azure-core==1.26.3
 requests==2.31.0
+werkzeug==2.0.3
