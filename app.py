@@ -58,8 +58,6 @@ def new_QA_response(text):
         )
     return output.answers[0].answer if output.answers else None
 
-time.sleep(3)
-
 def old_QA_response(text):
     client = QuestionAnsweringClient(old_endpoint, old_credential)
     with client:
@@ -93,6 +91,8 @@ def handle_message(event):
     except:
         print(traceback.format_exc())
         line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+
+time.sleep(3)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
