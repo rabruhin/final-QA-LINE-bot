@@ -95,23 +95,23 @@ def handle_message(event):
     try:
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(f"New QA: {QA_answer_new}"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(f"行事曆: {QA_answer_new}"))
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("New QA: No answer"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 沒有答案"))
     except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage("New QA: Error"))
+        line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 執行錯誤"))
 
     # 隨後回應舊 QA 系統的回答
     try:
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            line_bot_api.push_message(event.source.user_id, TextSendMessage(f"Old QA: {QA_answer_old}"))
+            line_bot_api.push_message(event.source.user_id, TextSendMessage(f"校園公告: {QA_answer_old}"))
         else:
-            line_bot_api.push_message(event.source.user_id, TextSendMessage("Old QA: No answer"))
+            line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 沒有答案"))
     except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.push_message(event.source.user_id, TextSendMessage("Old QA: Error"))
+        line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 執行錯誤"))
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
