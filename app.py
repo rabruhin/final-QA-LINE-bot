@@ -49,24 +49,32 @@ old_knowledge_base_project = os.getenv('OLD_PROJECT')
 old_deployment = 'production'
 
 def new_QA_response(text):
-    client = QuestionAnsweringClient(new_endpoint, new_credential)
-    with client:
-        output = client.get_answers(
-            question=text,
-            project_name=new_knowledge_base_project,
-            deployment_name=new_deployment
-        )
-    return output.answers[0].answer if output.answers else None
+    try:
+        client = QuestionAnsweringClient(new_endpoint, new_credential)
+        with client:
+            output = client.get_answers(
+                question=text,
+                project_name=new_knowledge_base_project,
+                deployment_name=new_deployment
+            )
+        return output.answers[0].answer if output.answers else None
+    except Exception as e:
+        print(f"Error in new QA system: {e}")
+        return None
 
 def old_QA_response(text):
-    client = QuestionAnsweringClient(old_endpoint, old_credential)
-    with client:
-        output = client.get_answers(
-            question=text,
-            project_name=old_knowledge_base_project,
-            deployment_name=old_deployment
-        )
-    return output.answers[0].answer if output.answers else None
+    try:
+        client = QuestionAnsweringClient(old_endpoint, old_credential)
+        with client:
+            output = client.get_answers(
+                question=text,
+                project_name=old_knowledge_base_project,
+                deployment_name=old_deployment
+            )
+        return output.answers[0].answer if output.answers else None
+    except Exception as e:
+        print(f"Error in old QA system: {e}")
+        return None
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -84,27 +92,33 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
+    responses = []
+
     try:
-            # 使用新的 Question Answering 系統
-        QA_answer = new_QA_response(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(QA_answer))
-    except:
+        # 使用新的 QA 系統
+        QA_answer_new = new_QA_response(msg)
+        if QA_answer_new:
+            responses.append(f"New QA: {QA_answer_new}")
+        else:
+            responses.append("New QA: No answer")
+    except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+        responses.append("New QA: Error")
 
-time.sleep(3)
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    msg = event.message.text
     try:
-            # 使用新的 Question Answering 系統
-        QA_answer = old_QA_response(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(QA_answer))
-    except:
+        # 使用舊的 QA 系統
+        QA_answer_old = old_QA_response(msg)
+        if QA_answer_old:
+            responses.append(f"Old QA: {QA_answer_old}")
+        else:
+            responses.append("Old QA: No answer")
+    except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+        responses.append("Old QA: Error")
 
+    # 合併兩個系統的回答，並回覆給用戶
+    final_response = "\n".join(responses)
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(final_response))
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
@@ -118,6 +132,10 @@ def welcome(event):
     name = profile.display_name
     message = TextSendMessage(text=f'{name} 歡迎加入')
     line_bot_api.reply_message(event.reply_token, message)
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
