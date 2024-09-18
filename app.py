@@ -83,20 +83,25 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if msg[0] != '-':
-        try:
+    try:
             # 使用新的 Question Answering 系統
-            QA_answer = new_QA_response(msg)
-            
-            # 如果新系統沒有返回答案，使用舊的 Question Answering 系統
-            if not QA_answer:
-                print("New QA system returned no answer. Falling back to the old system.")
-                QA_answer = old_QA_response(msg)
-            
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(QA_answer))
-        except:
-            print(traceback.format_exc())
-            line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+        QA_answer = new_QA_response(msg)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(QA_answer))
+    except:
+        print(traceback.format_exc())
+        line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    msg = event.message.text
+    try:
+            # 使用新的 Question Answering 系統
+        QA_answer = old_QA_response(msg)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(QA_answer))
+    except:
+        print(traceback.format_exc())
+        line_bot_api.reply_message(event.reply_token, TextSendMessage('QA Error'))
+
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
