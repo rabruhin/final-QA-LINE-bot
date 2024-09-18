@@ -57,6 +57,8 @@ def new_QA_response(text):
         )
     return output.answers[0].answer if output.answers else None
 
+time.sleep(3)
+
 def old_QA_response(text):
     client = QuestionAnsweringClient(old_endpoint, old_credential)
     with client:
