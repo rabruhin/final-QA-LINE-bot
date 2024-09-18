@@ -7,6 +7,7 @@ import traceback
 import requests
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.language.questionanswering import QuestionAnsweringClient
+import time
 
 def process_message(data):
     # 假設你處理完畢後需要推送結果
