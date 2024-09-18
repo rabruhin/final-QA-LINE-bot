@@ -98,9 +98,9 @@ def handle_message(event):
         # 使用新的 QA 系統
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            responses.append(f"New QA: {QA_answer_new}")
+            responses.append(f"行事曆: {QA_answer_new}")
         else:
-            responses.append("New QA: No answer")
+            responses.append("行事曆:沒有")
     except Exception as e:
         print(traceback.format_exc())
         responses.append("New QA: Error")
@@ -109,9 +109,9 @@ def handle_message(event):
         # 使用舊的 QA 系統
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            responses.append(f"Old QA: {QA_answer_old}")
+            responses.append(f"校園公告: {QA_answer_old}")
         else:
-            responses.append("Old QA: No answer")
+            responses.append("校園公告:沒有")
     except Exception as e:
         print(traceback.format_exc())
         responses.append("Old QA: Error")
