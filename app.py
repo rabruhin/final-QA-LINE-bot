@@ -10,11 +10,9 @@ from azure.ai.language.questionanswering import QuestionAnsweringClient
 import time
 
 def process_message(data):
-    # 假設你處理完畢後需要推送結果
     result = "Processed result here"
     user_id = data['events'][0]['source']['userId']
     
-    # 推送結果到用戶
     push_message(user_id, result)
 
 def push_message(user_id, message):
@@ -92,33 +90,28 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    responses = []
 
+    # 先回應新 QA 系統的回答
     try:
-        # 使用新的 QA 系統
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            responses.append(f"行事曆: {QA_answer_new}")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(f"New QA: {QA_answer_new}"))
         else:
-            responses.append("行事曆:沒有")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("New QA: No answer"))
     except Exception as e:
         print(traceback.format_exc())
-        responses.append("New QA: Error")
+        line_bot_api.reply_message(event.reply_token, TextSendMessage("New QA: Error"))
 
+    # 隨後回應舊 QA 系統的回答
     try:
-        # 使用舊的 QA 系統
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            responses.append(f"校園公告: {QA_answer_old}")
+            line_bot_api.push_message(event.source.user_id, TextSendMessage(f"Old QA: {QA_answer_old}"))
         else:
-            responses.append("校園公告:沒有")
+            line_bot_api.push_message(event.source.user_id, TextSendMessage("Old QA: No answer"))
     except Exception as e:
         print(traceback.format_exc())
-        responses.append("Old QA: Error")
-
-    # 合併兩個系統的回答，並回覆給用戶
-    final_response = "\n".join(responses)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(final_response))
+        line_bot_api.push_message(event.source.user_id, TextSendMessage("Old QA: Error"))
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
@@ -132,10 +125,6 @@ def welcome(event):
     name = profile.display_name
     message = TextSendMessage(text=f'{name} 歡迎加入')
     line_bot_api.reply_message(event.reply_token, message)
-
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
