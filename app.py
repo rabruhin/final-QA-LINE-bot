@@ -91,13 +91,15 @@ def callback():
 def handle_message(event):
     msg = event.message.text
 
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於此訊息，找到的消息為:")
+
     # 先回應新 QA 系統的回答
     try:
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(f"行事曆: {QA_answer_new}"))
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 沒有答案"))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 目前查無此資料"))
     except Exception as e:
         print(traceback.format_exc())
         line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 執行錯誤"))
@@ -108,7 +110,7 @@ def handle_message(event):
         if QA_answer_old:
             line_bot_api.push_message(event.source.user_id, TextSendMessage(f"校園公告: {QA_answer_old}"))
         else:
-            line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 沒有答案"))
+            line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 目前查無此資料"))
     except Exception as e:
         print(traceback.format_exc())
         line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 執行錯誤"))
