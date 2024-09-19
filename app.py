@@ -96,6 +96,8 @@ def handle_message(event):
         print(traceback.format_exc())
         line_bot_api.reply_message(event.reply_token, TextSendMessage("執行錯誤"))
 
+    time.sleep(3)
+
     # 先回應新 QA 系統的回答
     try:
         QA_answer_new = new_QA_response(msg)
