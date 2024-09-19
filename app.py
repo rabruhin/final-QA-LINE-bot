@@ -17,7 +17,7 @@ def process_message(data):
 
 def push_message(user_id, message):
     headers = {
-        'Authorization': 'Bearer YOUR_CHANNEL_ACCESS_TOKEN',
+        'Authorization': f'Bearer {os.getenv("CHANNEL_ACCESS_TOKEN")}',
         'Content-Type': 'application/json'
     }
     payload = {
@@ -90,35 +90,38 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
+    user_id = event.source.user_id  # 取得使用者的 user_id
+
     try:
+        # 第一次回覆
         line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於此訊息，找到的消息為:"))
     except Exception as e:
         print(traceback.format_exc())
         line_bot_api.reply_message(event.reply_token, TextSendMessage("執行錯誤"))
 
-    time.sleep(3)
-
-    # 先回應新 QA 系統的回答
+    # 第二次回覆（使用 push_message）
+    time.sleep(2)  # 模擬一些處理時間
     try:
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(f"行事曆: {QA_answer_new}"))
+            push_message(user_id, f"行事曆: {QA_answer_new}")
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 目前查無此資料"))
+            push_message(user_id, "行事曆: 目前查無此資料")
     except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage("行事曆: 執行錯誤"))
+        push_message(user_id, "行事曆: 執行錯誤")
 
-    # 隨後回應舊 QA 系統的回答
+    # 第三次回覆（使用 push_message）
+    time.sleep(2)  # 模擬一些處理時間
     try:
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            line_bot_api.push_message(event.source.user_id, TextSendMessage(f"校園公告: {QA_answer_old}"))
+            push_message(user_id, f"校園公告: {QA_answer_old}")
         else:
-            line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 目前查無此資料"))
+            push_message(user_id, "校園公告: 目前查無此資料")
     except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.push_message(event.source.user_id, TextSendMessage("校園公告: 執行錯誤"))
+        push_message(user_id, "校園公告: 執行錯誤")
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
