@@ -92,6 +92,9 @@ def handle_message(event):
     msg = event.message.text
     try:
         line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於此訊息，找到的消息為:"))
+    except Exception as e:
+        print(traceback.format_exc())
+        line_bot_api.reply_message(event.reply_token, TextSendMessage("執行錯誤"))
 
     # 先回應新 QA 系統的回答
     try:
