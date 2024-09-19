@@ -94,7 +94,7 @@ def handle_message(event):
 
     try:
         # 第一次回覆
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於此訊息，找到的消息為:"))
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於這個嘛，有個消息是:"))
     except Exception as e:
         print(traceback.format_exc())
         line_bot_api.reply_message(event.reply_token, TextSendMessage("執行錯誤"))
@@ -106,7 +106,7 @@ def handle_message(event):
         if QA_answer_new:
             push_message(user_id, f"行事曆: {QA_answer_new}")
         else:
-            push_message(user_id, "行事曆: 目前查無此資料")
+            push_message(user_id, "行事曆:似乎沒有什麼消息。")
     except Exception as e:
         print(traceback.format_exc())
         push_message(user_id, "行事曆: 執行錯誤")
@@ -118,7 +118,7 @@ def handle_message(event):
         if QA_answer_old:
             push_message(user_id, f"校園公告: {QA_answer_old}")
         else:
-            push_message(user_id, "校園公告: 目前查無此資料")
+            push_message(user_id, "校園公告:似乎沒有什麼消息。")
     except Exception as e:
         print(traceback.format_exc())
         push_message(user_id, "校園公告: 執行錯誤")
