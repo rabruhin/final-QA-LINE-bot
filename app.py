@@ -90,39 +90,34 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    messages = []
 
-    try:
-        # 第一次訊息回覆
-        messages.append(TextSendMessage(text=f"關於此訊息，找到的消息為:"))
-    except Exception as e:
-        print(traceback.format_exc())
-        messages.append(TextSendMessage(text="執行錯誤"))
+    # 先回應第一則訊息
+    first_message = TextSendMessage(text=f"關於此訊息，找到的消息為:")
 
     # 先回應新 QA 系統的回答
     try:
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            messages.append(TextSendMessage(text=f"☀️行事曆: {QA_answer_new}"))
+            second_message = TextSendMessage(text=f"☀️行事曆:\n\n{QA_answer_new}")
         else:
-            messages.append(TextSendMessage(text="☀️行事曆: 目前查無此資料"))
+            second_message = TextSendMessage(text="☀️行事曆:\n\n目前查無此資料")
     except Exception as e:
         print(traceback.format_exc())
-        messages.append(TextSendMessage(text="☀️行事曆: 執行錯誤"))
+        second_message = TextSendMessage(text="☀️行事曆: 執行錯誤")
 
     # 隨後回應舊 QA 系統的回答
     try:
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            messages.append(TextSendMessage(text=f"🌕校園公告: {QA_answer_old}"))
+            third_message = TextSendMessage(text=f"🌕校園公告:\n\n{QA_answer_old}")
         else:
-            messages.append(TextSendMessage(text="🌕校園公告: 目前查無此資料"))
+            third_message = TextSendMessage(text="🌕校園公告:\n\n目前查無此資料")
     except Exception as e:
         print(traceback.format_exc())
-        messages.append(TextSendMessage(text="🌕校園公告: 執行錯誤"))
+        third_message = TextSendMessage(text="🌕校園公告: 執行錯誤")
 
-    # 一次回覆多個訊息
-    line_bot_api.reply_message(event.reply_token, messages)
+    # 將三個訊息組合，使用reply_message一次性回應
+    line_bot_api.reply_message(event.reply_token, [first_message, second_message, third_message])
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
@@ -140,4 +135,5 @@ def welcome(event):
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
 
