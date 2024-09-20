@@ -90,38 +90,39 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    user_id = event.source.user_id  # 取得使用者的 user_id
+    messages = []
 
     try:
-        # 第一次回覆
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(f"關於這個嘛，有個消息是:"))
+        # 第一次訊息回覆
+        messages.append(TextSendMessage(text=f"關於此訊息，找到的消息為:"))
     except Exception as e:
         print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage("執行錯誤"))
+        messages.append(TextSendMessage(text="執行錯誤"))
 
-    # 第二次回覆（使用 push_message）
-    time.sleep(2)  # 模擬一些處理時間
+    # 先回應新 QA 系統的回答
     try:
         QA_answer_new = new_QA_response(msg)
         if QA_answer_new:
-            push_message(user_id, f"行事曆: {QA_answer_new}")
+            messages.append(TextSendMessage(text=f"☀️行事曆: {QA_answer_new}"))
         else:
-            push_message(user_id, "行事曆:似乎沒有什麼消息。")
+            messages.append(TextSendMessage(text="☀️行事曆: 目前查無此資料"))
     except Exception as e:
         print(traceback.format_exc())
-        push_message(user_id, "行事曆: 執行錯誤")
+        messages.append(TextSendMessage(text="☀️行事曆: 執行錯誤"))
 
-    # 第三次回覆（使用 push_message）
-    time.sleep(2)  # 模擬一些處理時間
+    # 隨後回應舊 QA 系統的回答
     try:
         QA_answer_old = old_QA_response(msg)
         if QA_answer_old:
-            push_message(user_id, f"校園公告: {QA_answer_old}")
+            messages.append(TextSendMessage(text=f"🌕校園公告: {QA_answer_old}"))
         else:
-            push_message(user_id, "校園公告:似乎沒有什麼消息。")
+            messages.append(TextSendMessage(text="🌕校園公告: 目前查無此資料"))
     except Exception as e:
         print(traceback.format_exc())
-        push_message(user_id, "校園公告: 執行錯誤")
+        messages.append(TextSendMessage(text="🌕校園公告: 執行錯誤"))
+
+    # 一次回覆多個訊息
+    line_bot_api.reply_message(event.reply_token, messages)
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
@@ -139,3 +140,4 @@ def welcome(event):
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
