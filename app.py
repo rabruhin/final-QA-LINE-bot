@@ -92,7 +92,7 @@ def handle_message(event):
     msg = event.message.text
 
     # 先回應第一則訊息
-    first_message = TextSendMessage(text=f"關於此訊息，找到的消息為:")
+    first_message = TextSendMessage(text=f"關於這個嘛，有個消息是:")
 
     # 先回應新 QA 系統的回答
     try:
