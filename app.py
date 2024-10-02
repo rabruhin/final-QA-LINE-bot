@@ -29,18 +29,14 @@ def push_message(user_id, message):
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-# Channel Access Token
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
-# Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-# New Question Answering system configuration
 new_endpoint = os.getenv('NEW_END_POINT')
 new_credential = AzureKeyCredential(os.getenv('NEW_AZURE_KEY'))
 new_knowledge_base_project = os.getenv('NEW_PROJECT')
 new_deployment = 'production'
 
-# Old Question Answering system configuration
 old_endpoint = os.getenv('OLD_END_POINT')
 old_credential = AzureKeyCredential(os.getenv('OLD_AZURE_KEY'))
 old_knowledge_base_project = os.getenv('OLD_PROJECT')
